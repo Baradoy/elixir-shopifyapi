@@ -4,13 +4,13 @@ defmodule ShopifyAPI.GraphQL.GraphQLResponse do
   """
   alias ShopifyAPI.GraphQL.GraphQLQuery
 
-  defstruct query: nil,
-            results: nil,
-            raw: nil,
+  defstruct errors?: false,
             errors: [],
             user_errors: [],
-            metadata: nil,
-            errors?: false
+            results: nil,
+            query: nil,
+            raw: nil,
+            metadata: nil
 
   @type t() :: t(any())
 

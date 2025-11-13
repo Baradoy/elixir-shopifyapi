@@ -63,6 +63,10 @@ defmodule ShopifyAPI.GraphQL.GraphQLResponse do
        ),
        do: %{graphql_response | errors: errors, errors?: true}
 
+  defp set_errors(%__MODULE__{raw: %Req.Response{body: %{"errors" => error}}} = graphql_response)
+       when is_binary(error),
+       do: %{graphql_response | errors: [error], errors?: true}
+
   defp set_errors(%__MODULE__{raw: %Req.Response{body: _body}} = graphql_response),
     do: graphql_response
 

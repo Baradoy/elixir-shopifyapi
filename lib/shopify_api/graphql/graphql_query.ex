@@ -43,7 +43,7 @@ defmodule ShopifyAPI.GraphQL.GraphQLQuery do
   ```
   """
 
-  defstruct [:name, :query_string, :variables, :path]
+  defstruct [:name, :variables, :path, :query_string]
 
   alias ShopifyAPI.GraphQL.GraphQLResponse
 

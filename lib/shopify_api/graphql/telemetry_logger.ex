@@ -19,7 +19,7 @@ defmodule ShopifyAPI.GraphQL.TelemetryLogger do
         _config
       ) do
     Logger.info(
-      "ShopifyAPI.GraphQL.stop #{metadata.query.name} finished in #{measurements.duration}",
+      "ShopifyAPI.GraphQL.stop #{metadata.query.name} finished in #{measurements.duration} (#{query_cost(metadata)})",
       details(metadata)
     )
   end
@@ -63,6 +63,12 @@ defmodule ShopifyAPI.GraphQL.TelemetryLogger do
       myshopify_domain: myshopify_domain
     ]
   end
+
+  def query_cost(%{response: %{cost: cost}} = _metadata) do
+    "-#{cost.actual_query_cost}:#{cost.currently_available}/#{cost.maximum_available}"
+  end
+
+  def query_cost(_metadata), do: ""
 
   def attach do
     :telemetry.attach_many(

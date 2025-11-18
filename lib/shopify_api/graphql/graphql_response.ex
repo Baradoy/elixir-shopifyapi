@@ -2,6 +2,7 @@ defmodule ShopifyAPI.GraphQL.GraphQLResponse do
   @doc """
   Results of a GraphQLQuery
   """
+  alias ShopifyAPI.GraphQL.GraphQLCost
   alias ShopifyAPI.GraphQL.GraphQLQuery
 
   defstruct errors?: false,
@@ -10,7 +11,8 @@ defmodule ShopifyAPI.GraphQL.GraphQLResponse do
             results: nil,
             query: nil,
             raw: nil,
-            metadata: nil
+            metadata: nil,
+            cost: nil
 
   @type t() :: t(any())
 
@@ -21,7 +23,8 @@ defmodule ShopifyAPI.GraphQL.GraphQLResponse do
           results: results,
           query: GraphQLQuery.t(),
           raw: Req.Response.t(),
-          errors?: true
+          errors?: false,
+          cost: GraphQLCost.t()
         }
 
   @type failure_t() :: failure_t(any())
@@ -29,13 +32,15 @@ defmodule ShopifyAPI.GraphQL.GraphQLResponse do
           results: results | nil,
           query: GraphQLQuery.t(),
           raw: Req.Response.t(),
-          errors?: false
+          errors?: true,
+          cost: nil | GraphQLCost.t()
         }
 
   @spec parse(Req.Response.t(), GraphQLQuery.t()) :: t()
   def parse(%Req.Response{} = raw, %GraphQLQuery{} = query) do
     %__MODULE__{query: query, raw: raw}
     |> set_results()
+    |> set_cost()
     |> set_errors()
     |> set_user_errors()
   end
@@ -57,6 +62,9 @@ defmodule ShopifyAPI.GraphQL.GraphQLResponse do
 
   defp set_results(%__MODULE__{raw: %Req.Response{body: _body}} = graphql_response),
     do: %{graphql_response | errors?: true}
+
+  defp set_cost(%__MODULE__{raw: raw} = graphql_response),
+    do: %{graphql_response | cost: GraphQLCost.parse(raw)}
 
   defp set_errors(
          %__MODULE__{raw: %Req.Response{body: %{"errors" => [_ | _] = errors}}} = graphql_response

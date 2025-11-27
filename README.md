@@ -206,9 +206,9 @@ The happy path response from `GraphQLQuery.execute/2` is `{:ok, %ShopifyAPI.Grap
 Unfortuneately, GraphQL is not always that simple. GraphQL makes no promises of a transactional api and you can have partial success and partial failures. In that case you will need to dig deeper into the `GraphQLResponse`. In that case, you may need to stich together the `:results` and `:user_errors` from `%GraphQLResponse{}`.
 
 There are four main types of errors returned form GraphQL
-  - "errors" array in the response body. These can arrise from malformed queries or missing variables. This will return `{:ok, GraphQLResponse{errors?: false, errors: [_ | _]}}`
-  - "userErrors" array at the root of the query response. This is specific to Shopify's implementation of GraphQL. This will return `{:ok, GraphQLResponse{errors?: false, user_errors: [_ | _]}}`
-  - Non-200 responses - This will return `{:ok, GraphQLResponse{errors?: false, raw: %Req.Response{status: _}}}`
+  - "errors" array in the response body. These can arrise from malformed queries or missing variables. This will return `{:ok, GraphQLResponse{errors?: true, errors: [_ | _]}}`
+  - "userErrors" array at the root of the query response. This is specific to Shopify's implementation of GraphQL. This will return `{:ok, GraphQLResponse{errors?: true, user_errors: [_ | _]}}`
+  - Non-200 responses - This will return `{:ok, GraphQLResponse{errors?: true, raw: %Req.Response{status: _}}}`
   - Network errors - These will return a `{:error, Exception.t()}` from the `Req` request.
 
 ### GraphQL version

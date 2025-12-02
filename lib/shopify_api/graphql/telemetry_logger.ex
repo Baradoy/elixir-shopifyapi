@@ -31,7 +31,7 @@ defmodule ShopifyAPI.GraphQL.TelemetryLogger do
         _config
       ) do
     Logger.info(
-      "ShopifyAPI.GraphQL.stop #{metadata.query.name} finished with errors in #{measurements.duration}, #{inspect(metadata.response.errors)}#{inspect(metadata.response.errors)}",
+      "ShopifyAPI.GraphQL.stop #{metadata.query.name} finished with errors in #{measurements.duration}, #{inspect(metadata.response.errors)}#{inspect(metadata.response.user_errors)}",
       details(metadata)
     )
   end

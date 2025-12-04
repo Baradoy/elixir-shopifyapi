@@ -64,8 +64,8 @@ defmodule ShopifyAPI.GraphQL.TelemetryLogger do
     ]
   end
 
-  def query_cost(%{response: %{cost: cost}} = _metadata) do
-    "-#{cost.actual_query_cost}:#{cost.currently_available}/#{cost.maximum_available}"
+  def query_cost(%{response: %{cost: cost, budget: budget}} = _metadata) do
+    "-#{cost.actual_query_cost}:#{budget.currently_available}/#{budget.maximum_available}"
   end
 
   def query_cost(_metadata), do: ""

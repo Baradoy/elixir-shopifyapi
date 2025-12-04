@@ -5,6 +5,9 @@ defmodule ShopifyAPI.GraphQL do
 
   require Logger
 
+  alias ShopifyAPI.GraphQL.GrahpQLRateLimiting
+  alias ShopifyAPI.GraphQL.GraphQLBudgetServer
+  alias ShopifyAPI.GraphQL.GraphQLCostServer
   alias ShopifyAPI.GraphQL.GraphQLQuery
   alias ShopifyAPI.GraphQL.GraphQLResponse
   alias ShopifyAPI.GraphQL.JSONParseError
@@ -64,6 +67,13 @@ defmodule ShopifyAPI.GraphQL do
           | {:ok, GraphQLResponse.failure_t()}
           | {:error, Exception.t()}
   def execute(%GraphQLQuery{} = query, scope, opts \\ []) do
+    case GrahpQLRateLimiting.check_budget(query, scope) do
+      {:ok, _} -> do_execute(query, scope, opts)
+      _ -> {:error, :rate_limit_exceded}
+    end
+  end
+
+  defp do_execute(query, scope, opts) do
     url = build_url(ShopifyAPI.Scopes.myshopify_domain(scope), opts)
     headers = build_headers(ShopifyAPI.Scopes.access_token(scope), opts)
     body = JSONSerializer.encode!(%{query: query.query_string, variables: query.variables})
@@ -76,6 +86,8 @@ defmodule ShopifyAPI.GraphQL do
         case Req.post(url, body: body, headers: headers) do
           {:ok, raw_response} ->
             response = GraphQLResponse.parse(raw_response, query)
+            GraphQLCostServer.set(response.query, response.cost)
+            GraphQLBudgetServer.set(scope, response.budget)
             {{:ok, response}, Map.put(metadata, :response, response)}
 
           {:error, exception} ->

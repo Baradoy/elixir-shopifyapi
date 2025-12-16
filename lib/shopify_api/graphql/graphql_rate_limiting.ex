@@ -37,14 +37,20 @@ defmodule ShopifyAPI.GraphQL.GrahpQLRateLimiting do
     end
   end
 
-  defp available(budget) do
+  defp available(budget)
+       when is_integer(budget.currently_available) and is_integer(budget.maximum_available) do
     min(budget.currently_available + restored(budget), budget.maximum_available)
   end
 
-  defp restored(budget) do
+  defp available(_budget), do: @fallback_avialable
+
+  defp restored(budget)
+       when is_integer(budget.restore_rate) and is_struct(budget.created_at, DateTime) do
     floor(
       DateTime.diff(DateTime.utc_now(), budget.created_at, :second) * budget.restore_rate /
         60
     )
   end
+
+  defp restored(_budget), do: @fallback_cost
 end
